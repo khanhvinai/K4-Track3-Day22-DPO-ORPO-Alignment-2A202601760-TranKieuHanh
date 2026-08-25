@@ -41,7 +41,9 @@ else:  # BIGGPU
     PER_DEVICE_BATCH = 2
     GRAD_ACCUM = 4
 
-SFT_DATASET = os.environ.get("SFT_DATASET", "5CD-AI/Vietnamese-alpaca-cleaned")
+# The previous 5CD-AI dataset was removed/private on the Hugging Face Hub.
+# This public replacement has the same Alpaca fields: instruction/input/output.
+SFT_DATASET = os.environ.get("SFT_DATASET", "bkai-foundation-models/vi-alpaca")
 SFT_SLICE = 1000
 NUM_EPOCHS = 1
 
@@ -106,8 +108,9 @@ print(f"Trainable params: {sum(p.numel() for p in model.parameters() if p.requir
 # %% [markdown]
 # ## 2. Load + format VN Alpaca slice
 #
-# `5CD-AI/Vietnamese-alpaca-cleaned` is a 50k-row VN Alpaca translation. Lab 21
-# uses 1k slice for the demo run; we match that exactly so reward gap is comparable.
+# `bkai-foundation-models/vi-alpaca` is a 50k-row Vietnamese Alpaca dataset.
+# Lab 21 uses a 1k slice for the demo run; we match that exactly so reward gap
+# is comparable.
 
 # %%
 from datasets import load_dataset

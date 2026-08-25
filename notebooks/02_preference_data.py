@@ -59,9 +59,18 @@ print(f"output:          {PREF_OUT}")
 from transformers import AutoTokenizer
 
 assert ADAPTER_DIR.exists(), f"NB1 must run first — {ADAPTER_DIR} missing"
-tokenizer = AutoTokenizer.from_pretrained(ADAPTER_DIR)
+# The adapter directory may not preserve Qwen's chat_template. Load the
+# matching base tokenizer, which is identical for tokenization and includes
+# the native ChatML template required by apply_chat_template().
+BASE_MODEL = (
+    "unsloth/Qwen2.5-3B-bnb-4bit"
+    if COMPUTE_TIER == "T4"
+    else "unsloth/Qwen2.5-7B-bnb-4bit"
+)
+tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
+assert tokenizer.chat_template is not None, "Base Qwen tokenizer has no chat_template"
 print(f"Tokenizer: {tokenizer.__class__.__name__}  vocab={tokenizer.vocab_size:,}")
 
 # %% [markdown]

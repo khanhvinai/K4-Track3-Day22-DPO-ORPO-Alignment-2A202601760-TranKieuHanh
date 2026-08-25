@@ -44,6 +44,15 @@ esac
 # Unsloth's installer picks the right CUDA wheel.
 pip install -q -r requirements.txt
 
+# Current Colab T4 runtimes can install an xFormers build whose backward
+# attention kernels require compute capability >= 8.0. A Tesla T4 is 7.5, so
+# that build crashes at the first DPO backward pass. Without xFormers, Unsloth
+# safely falls back to PyTorch SDPA (slower, but compatible with T4).
+if [ "$TIER" = "T4" ]; then
+  echo "[colab] T4 detected — removing incompatible xformers; using PyTorch SDPA fallback"
+  pip uninstall -y -q xformers || true
+fi
+
 if [ "$TIER" = "BIGGPU" ]; then
   echo "[colab] Installing BigGPU extras (vllm, flash-attn) — may take 3-5 min"
   pip install -q -r requirements-biggpu.txt || echo "[colab] WARNING: vllm/flash-attn install failed; vLLM cell in NB5 will skip"
